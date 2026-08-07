@@ -22,7 +22,7 @@ export const APP_CONFIG = {
       if (stored) return stored.replace(/\/$/, '') + '/api/downloads';
     } catch (e) {}
 
-    // 3. Same-origin fallback
-    return '/api/downloads';
+    // 3. Railway backend fallback
+    return 'https://nexora7.up.railway.app/api/downloads';
   }
 };
