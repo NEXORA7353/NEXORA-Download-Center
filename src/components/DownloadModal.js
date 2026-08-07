@@ -2,9 +2,18 @@ import { Icons } from '../assets/icons.js';
 import { executeSecureDownload } from '../services/downloadService.js';
 import { appState } from '../state/appState.js';
 
+// ✅ Helper function - version safely nikaalta hai
+function getVersion(releaseInfo) {
+  return releaseInfo?.version
+    || releaseInfo?.latestVersion
+    || releaseInfo?.minVersion
+    || '1.0.0';
+}
+
 export function renderDownloadModal(platform, releaseInfo) {
   const isAndroid = platform === 'android';
   const platformName = isAndroid ? 'Android APK' : 'Windows Setup (.exe)';
+  const version = getVersion(releaseInfo); // ✅ Safe version
 
   return `
     <div class="modal-backdrop" id="downloadModalBackdrop">
@@ -12,7 +21,7 @@ export function renderDownloadModal(platform, releaseInfo) {
         <div class="modal-header">
           <div>
             <div class="eyebrow">SECURE DOWNLOAD INITIATOR</div>
-            <div class="modal-title">${platformName} v${releaseInfo.version}</div>
+            <div class="modal-title">${platformName} v${version}</div>
           </div>
           <button class="close-btn" id="closeDlModal">${Icons.close(20)}</button>
         </div>
@@ -47,6 +56,7 @@ export function renderDownloadModal(platform, releaseInfo) {
 export function handleDownloadFlow(platform, releaseInfo) {
   const student = appState.getState().student;
   const studentId = student ? student.studentId : 'STUDENT';
+  const version = getVersion(releaseInfo); // ✅ Safe version
 
   const modalContainer = document.createElement('div');
   modalContainer.innerHTML = renderDownloadModal(platform, releaseInfo);
@@ -62,7 +72,6 @@ export function handleDownloadFlow(platform, releaseInfo) {
     if (modalContainer) modalContainer.remove();
   });
 
-  // Animate progress states
   let step = 0;
   const interval = setInterval(() => {
     step += 25;
@@ -79,10 +88,10 @@ export function handleDownloadFlow(platform, releaseInfo) {
       if (progressText) progressText.textContent = 'Download Ready! Starting transfer...';
       if (subText) subText.textContent = 'If the download does not start automatically, please try again.';
 
-      // Execute actual secure download action
       executeSecureDownload(platform, releaseInfo, studentId)
         .then(() => {
-          appState.addToast(`Successfully initiated ${platform.toUpperCase()} v${releaseInfo.version} download!`, 'success');
+          // ✅ Safe version use
+          appState.addToast(`Successfully initiated ${platform.toUpperCase()} v${version} download!`, 'success');
           setTimeout(() => {
             if (modalContainer) modalContainer.remove();
           }, 1500);
