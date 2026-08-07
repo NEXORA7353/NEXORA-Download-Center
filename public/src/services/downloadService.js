@@ -10,11 +10,14 @@ export async function getLiveDownloadConfig() {
 }
 
 export async function executeSecureDownload(platform, releaseInfo, studentId) {
+  const session = storage.getStudentSession() || {};
+  const sId = studentId || session.studentId || 'NEX-ANONYMOUS';
+
   // 1. Generate/verify secure download token from server
   const tokenRes = await verifyDownloadToken({
     platform,
     version: releaseInfo.version,
-    studentId
+    studentId: sId
   });
 
   if (!tokenRes || !tokenRes.success) {
@@ -25,7 +28,9 @@ export async function executeSecureDownload(platform, releaseInfo, studentId) {
   await trackDownloadEvent({
     platform,
     version: releaseInfo.version,
-    studentId
+    studentId: sId,
+    studentName: session.name || 'Student',
+    studentEmail: session.email || ''
   }).catch(() => {});
 
   // 3. Log into local download history

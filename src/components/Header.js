@@ -5,7 +5,6 @@ import { storage } from '../utilities/storage.js';
 
 export function renderHeader(activeRoute = 'dashboard') {
   const { student, theme } = appState.getState();
-
   const isLight = theme === 'light';
 
   return `
@@ -35,14 +34,17 @@ export function renderHeader(activeRoute = 'dashboard') {
         </button>
 
         ${student ? `
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="eyebrow" style="background: rgba(255,122,23,0.15); color: var(--accent-orange); padding: 4px 10px; border-radius: 9999px;">
-              ${student.studentId}
-            </span>
-            <button id="logoutBtn" class="btn-outline btn-sm">Logout</button>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="text-align: right;">
+              <div style="font-size: 13px; font-weight: 600; color: var(--ink);">${student.name || 'Student'}</div>
+              <div class="eyebrow" style="font-size: 10px; color: var(--accent-orange); font-family: 'JetBrains Mono', monospace;">
+                ${student.studentId || 'ID: UNKNOWN'}
+              </div>
+            </div>
+            <button id="logoutBtn" class="btn-outline btn-sm" style="padding: 6px 12px;">Logout</button>
           </div>
         ` : `
-          <a href="#/login" class="btn-primary btn-sm">Student Login</a>
+          <a href="#/login" class="btn-primary btn-sm">Student Access</a>
         `}
       </div>
     </header>
