@@ -1,9 +1,9 @@
 import { APP_CONFIG } from '../configuration/appConfig.js';
 
 export async function request(path, options = {}) {
-  const baseUrl = APP_CONFIG.getApiBaseUrl();
-  const cleanPath = path.startsWith('/api/downloads') ? path.replace('/api/downloads', '') : path;
-  const endpoint = `${baseUrl}${cleanPath.startsWith('/') ? '' : '/'}${cleanPath}`;
+  const backendHost = 'https://nexora7.up.railway.app';
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  const endpoint = `${backendHost}${cleanPath}`;
 
   const defaults = {
     headers: {
