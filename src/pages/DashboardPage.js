@@ -8,7 +8,7 @@ import { appState } from '../state/appState.js';
 import { isForceUpdateRequired } from '../utilities/validators.js';
 
 export function renderDashboardPage() {
-  const { downloadConfig, loading, error } = appState.getState();
+  const { downloadConfig, loading, error, student } = appState.getState();
 
   if (loading) {
     return `
@@ -46,6 +46,26 @@ export function renderDashboardPage() {
 
   return `
     <div>
+      ${student ? `
+      <div class="content-card fade-in" style="padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-left: 4px solid var(--accent-orange);">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div style="width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-orange), var(--accent-red)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 18px;">
+            ${(student.name || 'S').charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <div style="font-weight: 700; font-size: 15px; color: var(--ink);">${student.name}</div>
+            <div style="font-size: 12px; color: var(--ink-mute);">${student.email || ''}</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="text-align: right;">
+            <div class="eyebrow" style="font-size: 10px; color: var(--ink-mute);">UNIQUE STUDENT ID</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; color: var(--accent-orange); letter-spacing: 0.5px;">${student.studentId}</div>
+          </div>
+        </div>
+      </div>
+      ` : ''}
+
       <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 32px; border-bottom: 1px solid var(--hairline); padding-bottom: 24px;">
         <div>
           <div class="eyebrow">VERIFIED OFFICIAL RELEASES</div>
@@ -54,6 +74,7 @@ export function renderDashboardPage() {
             Download verified high-performance learning software built for Android & Windows desktop devices.
           </p>
         </div>
+
 
         <div style="display: flex; align-items: center; gap: 10px;">
           <span class="status-pill stable">
