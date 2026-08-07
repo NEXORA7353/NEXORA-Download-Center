@@ -17,22 +17,42 @@ export async function fetchDownloadConfig() {
     success: true,
     data: {
       android: {
-        latestVersion: "2.5.0",
-        minSupportedVersion: "2.0.0",
-        apkUrl: "https://github.com/nexora-edu/releases/releases/download/v2.4.1/nexora-student-v2.4.1.apk",
-        fileSize: "45.2 MB",
-        sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        releaseNotes: ["Added high-speed offline lecture sync capabilities."],
+        version: "1.0.0",
+        latestVersion: "1.0.0",
+        minVersion: "1.0.0",
+        minSupportedVersion: "1.0.0",
+        fileSize: "6.62 MB",
+        downloadUrl: "https://github.com/NEXORA7353/NEXORA/releases/latest/download/NEXORA.apk",
+        apkUrl: "https://github.com/NEXORA7353/NEXORA/releases/latest/download/NEXORA.apk",
+        checksum: "sha256:b04e2cadb9254fb8274bde4df526b372b2702885ec0ca6ce5b6bdbd81a240780",
+        sha256: "sha256:b04e2cadb9254fb8274bde4df526b372b2702885ec0ca6ce5b6bdbd81a240780",
+        releaseNotes: [
+          "Initial Official Android Release",
+          "Performance Improvements",
+          "UI Enhancements",
+          "Bug Fixes",
+          "Security Improvements"
+        ],
         maintenanceMode: false,
         forceUpdate: false
       },
       windows: {
+        version: "1.8.0",
         latestVersion: "1.8.0",
+        minVersion: "1.0.0",
         minSupportedVersion: "1.0.0",
-        exeUrl: "https://github.com/nexora-edu/releases/releases/download/v1.8.0/nexora-desktop-setup-1.8.0.exe",
         fileSize: "88.2 MB",
-        sha256: "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e",
-        releaseNotes: ["Introduced hardware-accelerated rendering for 4K live streams."],
+        downloadUrl: "https://github.com/NEXORA7353/NEXORA/releases/latest/download/NEXORA.Setup.1.0.0.exe",
+        exeUrl: "https://github.com/NEXORA7353/NEXORA/releases/latest/download/NEXORA.Setup.1.0.0.exe",
+        checksum: "sha256:2c5e529c5966e780365e13866067542156f3c5174c4026ca705c5dd957639c5e",
+        sha256: "sha256:2c5e529c5966e780365e13866067542156f3c5174c4026ca705c5dd957639c5e",
+        releaseNotes: [
+          "Initial Official Android Release",
+          "Performance Improvements",
+          "UI Enhancements",
+          "Bug Fixes",
+          "Security Improvements"
+        ],
         maintenanceMode: false,
         forceUpdate: false
       }
