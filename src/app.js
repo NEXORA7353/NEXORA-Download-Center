@@ -33,17 +33,29 @@ class DownloadCenterApp {
     // 4. Handle routing
     window.addEventListener('hashchange', () => this.render());
 
-    // 5. Initial data fetch from live API
+    // 5. Initial data fetch from live API, with static JSON fallback
     try {
       appState.setState({ loading: true });
       const config = await getLiveDownloadConfig();
       appState.setState({ downloadConfig: config, loading: false, error: null });
     } catch (err) {
-      console.warn('Initial live download config load warning:', err.message);
-      appState.setState({ loading: false, error: 'Could not connect to NEXORA live backend server. Check connection.' });
+      console.warn('Live API unavailable, trying static config fallback:', err.message);
+      // Fallback: load static config.json for Cloudflare Pages / static deployments
+      try {
+        const staticRes = await fetch('./data/config.json');
+        if (staticRes.ok) {
+          const staticConfig = await staticRes.json();
+          appState.setState({ downloadConfig: staticConfig, loading: false, error: null });
+        } else {
+          throw new Error('Static config not found');
+        }
+      } catch (fallbackErr) {
+        appState.setState({ loading: false, error: 'Could not connect to NEXORA live backend server. Check connection.' });
+      }
     }
 
     this.render();
+
   }
 
   getRoute() {
