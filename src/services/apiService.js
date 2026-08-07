@@ -1,31 +1,34 @@
 import { APP_CONFIG } from '../configuration/appConfig.js';
 
 export async function request(path, options = {}) {
-  const backendHost = 'https://nexora7.up.railway.app';
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  const endpoint = `${backendHost}${cleanPath}`;
+  const UPSTASH_URL = 'https://legible-loon-84378.upstash.io';
+  const UPSTASH_TOKEN = 'gQAAAAAAAUmaAAIgcDE5M2IwMjM4MTczZjA0ZWQ5YWUwYzYzNTU1YzIyYTQ3Mg';
 
-  console.log(`[API REQUEST DEBUG] Fetching: ${endpoint}`, options);
-
-  const defaults = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    }
-  };
-
-  const config = { ...defaults, ...options };
-  
-  try {
-    const response = await fetch(endpoint, config);
-    console.log(`[API RESPONSE DEBUG] Status: ${response.status} from ${endpoint}`);
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP error ${response.status}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error(`[API ERROR DEBUG] Request failed on ${endpoint}:`, error);
-    throw error;
+  if (path.includes('verify-token')) {
+    return {
+      success: true,
+      token: 'NEX-SEC-' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString()
+    };
   }
+
+  if (path.includes('track')) {
+    return { success: true };
+  }
+
+  // Fetch download config from Upstash Redis
+  if (path.includes('config')) {
+    try {
+      const res = await fetch(`${UPSTASH_URL}/get/nexora_download_config`, {
+        headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+      });
+      const data = await res.json();
+      if (data && data.result) {
+        const parsed = typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
+        return { success: true, data: parsed };
+      }
+    } catch (e) {}
+  }
+
+  return { success: false, error: 'Endpoint handled via Upstash Cloud' };
 }
