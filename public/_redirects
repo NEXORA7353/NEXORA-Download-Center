@@ -1,0 +1,3 @@
+# Cloudflare Pages _redirects
+# SPA routing ke liye
+/*  /index.html  200
