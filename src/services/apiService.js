@@ -2,9 +2,8 @@ import { APP_CONFIG } from '../configuration/appConfig.js';
 
 export async function request(path, options = {}) {
   const baseUrl = APP_CONFIG.getApiBaseUrl();
-  const endpoint = path.startsWith('/api/downloads') 
-    ? path.replace('/api/downloads', baseUrl)
-    : `${baseUrl}${path}`;
+  const cleanPath = path.startsWith('/api/downloads') ? path.replace('/api/downloads', '') : path;
+  const endpoint = `${baseUrl}${cleanPath.startsWith('/') ? '' : '/'}${cleanPath}`;
 
   const defaults = {
     headers: {
