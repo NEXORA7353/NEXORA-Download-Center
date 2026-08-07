@@ -17,6 +17,9 @@
 <body>
   <div id="root"></div>
 
-  <script type="module" src="./src/app.js?v=5.0.0"></script>
+  <script>
+    window.NEXORA_CACHE_VERSION = 'v' + Date.now();
+  </script>
+  <script type="module" src="./src/app.js"></script>
 </body>
 </html>
