@@ -3,12 +3,12 @@
   "name": "NEXORA Download Center",
   "icons": [
     {
-      "src": "/download-center/src/assets/logo.png",
+      "src": "./src/assets/logo.png",
       "sizes": "192x192",
       "type": "image/png"
     }
   ],
-  "start_url": "/download-center/",
+  "start_url": "./",
   "background_color": "#0a0b0e",
   "theme_color": "#ff7a17",
   "display": "standalone"
