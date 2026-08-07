@@ -22,7 +22,7 @@ export function renderReleaseCard(platform, releaseInfo) {
         </div>
 
         <h2 style="font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 2px;">${platformTitle}</h2>
-        <div class="version-tag">v${releaseInfo?.version || '1.0.0'}</div>
+        <div class="version-tag">v${releaseInfo?.version || releaseInfo?.latestVersion || '1.0.0'}</div>
 
         <div class="release-meta">
           <span>Date: <strong>${formatDate(releaseInfo?.releaseDate)}</strong></span>
@@ -30,10 +30,10 @@ export function renderReleaseCard(platform, releaseInfo) {
           <span>Size: <strong>${releaseInfo?.fileSize || 'N/A'}</strong></span>
         </div>
 
-        ${releaseInfo?.checksum ? `
-          <div class="checksum-box" title="${releaseInfo.checksum}">
-            <span>SHA-256: ${truncateHash(releaseInfo.checksum)}</span>
-            <button type="button" class="copy-checksum-btn" data-hash="${releaseInfo.checksum}" style="background: none; border: none; color: var(--accent-orange); cursor: pointer;">
+        ${(releaseInfo?.checksum || releaseInfo?.sha256) ? `
+          <div class="checksum-box" title="${releaseInfo.checksum || releaseInfo.sha256}">
+            <span>SHA-256: ${truncateHash(releaseInfo.checksum || releaseInfo.sha256)}</span>
+            <button type="button" class="copy-checksum-btn" data-hash="${releaseInfo.checksum || releaseInfo.sha256}" style="background: none; border: none; color: var(--accent-orange); cursor: pointer;">
               ${Icons.copy(14)}
             </button>
           </div>

@@ -115,9 +115,10 @@ export async function executeSecureDownload(platform, releaseInfo, studentId) {
   storage.addDownloadHistory(historyItem);
 
   // 4. Trigger direct file download
-  if (releaseInfo.downloadUrl) {
+  const targetUrl = releaseInfo.downloadUrl || releaseInfo.apkUrl || releaseInfo.exeUrl;
+  if (targetUrl) {
     const link = document.createElement('a');
-    link.href = releaseInfo.downloadUrl;
+    link.href = targetUrl;
     link.target = '_blank';
     link.setAttribute('download', '');
     document.body.appendChild(link);
