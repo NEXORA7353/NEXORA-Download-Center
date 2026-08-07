@@ -1,12 +1,10 @@
-import { APP_CONFIG } from '../configuration/appConfig.js';
 import { storage } from '../utilities/storage.js';
 
-/**
- * Register/Login student via Railway backend
- * Returns student session object
- */
+const BACKEND = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000'
+  : '';
+
 export async function loginStudent(name, email) {
-  // Validate inputs
   if (!name || name.trim().length < 3) {
     throw new Error('Please enter your full name (minimum 3 characters).');
   }
@@ -14,10 +12,8 @@ export async function loginStudent(name, email) {
     throw new Error('Please enter a valid email address.');
   }
 
-  const apiBase = APP_CONFIG.getApiBaseUrl().replace('/api/downloads', '');
-
   try {
-    const response = await fetch(`${apiBase}/api/downloads/register-student`, {
+    const res = await fetch(`${BACKEND}/api/downloads/register-student`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -26,16 +22,13 @@ export async function loginStudent(name, email) {
       })
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Registration failed. Please try again.');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Registration failed.');
     }
 
-    const data = await response.json();
-
-    if (!data.success || !data.data) {
-      throw new Error('Invalid server response. Please try again.');
-    }
+    const data = await res.json();
+    if (!data.success || !data.data) throw new Error('Invalid response.');
 
     const session = {
       studentId: data.data.studentId,
@@ -45,17 +38,14 @@ export async function loginStudent(name, email) {
       lastActive: new Date().toISOString()
     };
 
-    // Save session to localStorage
     storage.setStudentSession(session);
     return session;
 
   } catch (err) {
-    // Network error - generate offline session
-    if (err.name === 'TypeError' || err.message.includes('fetch')) {
-      console.warn('Backend unreachable, generating offline session');
-      const offlineSession = generateOfflineSession(name.trim(), email.trim());
-      storage.setStudentSession(offlineSession);
-      return offlineSession;
+    if (err.name === 'TypeError') {
+      const session = makeOfflineSession(name.trim(), email.trim());
+      storage.setStudentSession(session);
+      return session;
     }
     throw err;
   }
@@ -69,11 +59,10 @@ export function getCurrentStudent() {
   return storage.getStudentSession();
 }
 
-function generateOfflineSession(name, email) {
+function makeOfflineSession(name, email) {
   const year = new Date().getFullYear();
-  const randId = `NEX-${year}-${Math.floor(10000 + Math.random() * 90000)}`;
   return {
-    studentId: randId,
+    studentId: `NEX-${year}-${Math.floor(10000 + Math.random() * 90000)}`,
     name,
     email: email.toLowerCase(),
     registeredAt: new Date().toISOString(),

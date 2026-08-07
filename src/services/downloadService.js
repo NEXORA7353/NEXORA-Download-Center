@@ -1,6 +1,9 @@
 import { storage } from '../utilities/storage.js';
 
-const BACKEND_URL = 'https://nexora7.up.railway.app';
+// Relative URL - Cloudflare proxy handle karega
+const BACKEND = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000' 
+  : '';
 
 const DEFAULT_CONFIG = {
   published: true,
@@ -43,45 +46,36 @@ const DEFAULT_CONFIG = {
 
 export async function getLiveDownloadConfig() {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/downloads/config`, {
+    const res = await fetch(`${BACKEND}/api/downloads/config`, {
       cache: 'no-store',
       headers: { 'Accept': 'application/json' }
     });
 
-    // ✅ HTML check - agar HTML aaya to Railway down hai
-    const contentType = res.headers.get('content-type') || '';
-    if (contentType.includes('text/html')) {
-      throw new Error('Railway returned HTML');
-    }
-
+    const ct = res.headers.get('content-type') || '';
+    if (ct.includes('text/html')) throw new Error('HTML received');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const data = await res.json();
-    if (data && data.data) {
-      // Cache karo
+    if (data?.data) {
       try {
         localStorage.setItem('nexora_config_cache', JSON.stringify(data.data));
         localStorage.setItem('nexora_config_ts', String(Date.now()));
-      } catch (e) {}
+      } catch(e) {}
       return data.data;
     }
-    throw new Error('No data in response');
+    throw new Error('No data');
 
   } catch (err) {
-    console.warn('Railway config failed:', err.message);
+    console.warn('Config fetch failed:', err.message);
 
-    // LocalStorage cache check (5 min valid)
     try {
       const cached = localStorage.getItem('nexora_config_cache');
       const ts = parseInt(localStorage.getItem('nexora_config_ts') || '0');
-      if (cached && (Date.now() - ts) < 5 * 60 * 1000) {
-        console.info('Using cached config');
+      if (cached && (Date.now() - ts) < 300000) {
         return JSON.parse(cached);
       }
-    } catch (e) {}
+    } catch(e) {}
 
-    // Static fallback
-    console.info('Using default config');
     return DEFAULT_CONFIG;
   }
 }
@@ -90,23 +84,25 @@ export async function executeSecureDownload(platform, releaseInfo, studentId) {
   const session = storage.getStudentSession() || {};
   const sId = studentId || session.studentId || 'NEX-GUEST';
 
-  // Token generate karo
-  let token = 'NEX-' + Math.random().toString(36).substr(2, 10).toUpperCase();
+  let token = 'NEX-' + Math.random().toString(36).substr(2,10).toUpperCase();
   try {
-    const tokenRes = await fetch(`${BACKEND_URL}/api/downloads/verify-token`, {
+    const res = await fetch(`${BACKEND}/api/downloads/verify-token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ platform, version: releaseInfo.version, studentId: sId })
+      body: JSON.stringify({
+        platform,
+        version: releaseInfo.version || '1.0.0',
+        studentId: sId
+      })
     });
-    if (tokenRes.ok) {
-      const tokenData = await tokenRes.json();
-      if (tokenData.token) token = tokenData.token;
+    if (res.ok) {
+      const d = await res.json();
+      if (d.token) token = d.token;
     }
-  } catch (e) {}
+  } catch(e) {}
 
-  // Track karo
   try {
-    await fetch(`${BACKEND_URL}/api/downloads/track`, {
+    await fetch(`${BACKEND}/api/downloads/track`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -117,10 +113,9 @@ export async function executeSecureDownload(platform, releaseInfo, studentId) {
         studentEmail: session.email || ''
       })
     });
-  } catch (e) {}
+  } catch(e) {}
 
-  // History save karo
-  const historyItem = {
+  const item = {
     id: token,
     platform,
     version: releaseInfo.version || '1.0.0',
@@ -129,19 +124,18 @@ export async function executeSecureDownload(platform, releaseInfo, studentId) {
     timestamp: new Date().toISOString(),
     status: 'COMPLETED'
   };
-  storage.addDownloadHistory(historyItem);
+  storage.addDownloadHistory(item);
 
-  // File download trigger karo
   const url = releaseInfo.downloadUrl || releaseInfo.apkUrl || releaseInfo.exeUrl;
   if (url) {
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    link.setAttribute('download', '');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.setAttribute('download', '');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
-  return historyItem;
+  return item;
 }

@@ -1,3 +1,5 @@
-# Cloudflare Pages _redirects
-# SPA routing ke liye
+# API calls proxy ko jaayein
+/api/*  /api/:splat  200
+
+# SPA routing
 /*  /index.html  200

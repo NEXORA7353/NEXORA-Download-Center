@@ -2,14 +2,17 @@ export const APP_CONFIG = {
   appName: 'NEXORA Download Center',
   appVersion: '1.0.0',
 
-  // ✅ HARDCODED Railway URL - koi dynamic resolver nahi
-  BACKEND_URL: 'https://nexora7.up.railway.app',
-
   getApiBaseUrl() {
-    return 'https://nexora7.up.railway.app';
+    // Ab relative URL use karo - Cloudflare proxy handle karega
+    if (window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1') {
+      return 'http://localhost:3000';
+    }
+    // Production me same domain - no Railway URL needed!
+    return '';
   },
 
   getDownloadsApiUrl() {
-    return 'https://nexora7.up.railway.app/api/downloads';
+    return this.getApiBaseUrl() + '/api/downloads';
   }
 };
