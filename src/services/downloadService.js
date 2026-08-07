@@ -84,14 +84,13 @@ export async function executeSecureDownload(platform, releaseInfo, studentId) {
   const session = storage.getStudentSession() || {};
   const sId = studentId || session.studentId || 'NEX-GUEST';
 
-  let token = 'NEX-' + Math.random().toString(36).substr(2,10).toUpperCase();
+  let token = null;
   try {
-    const res = await fetch(`${BACKEND}/api/downloads/verify-token`, {
+    const res = await fetch(`${BACKEND}/api/downloads/request-token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         platform,
-        version: releaseInfo.version || '1.0.0',
         studentId: sId
       })
     });
@@ -116,25 +115,30 @@ export async function executeSecureDownload(platform, releaseInfo, studentId) {
   } catch(e) {}
 
   const item = {
-    id: token,
+    id: token || ('NEX-' + Math.random().toString(36).substr(2,10).toUpperCase()),
     platform,
     version: releaseInfo.version || '1.0.0',
     fileSize: releaseInfo.fileSize,
-    downloadUrl: releaseInfo.downloadUrl || releaseInfo.apkUrl || releaseInfo.exeUrl,
+    downloadUrl: token ? `${BACKEND}/api/downloads/secure/${token}` : '#',
     timestamp: new Date().toISOString(),
     status: 'COMPLETED'
   };
   storage.addDownloadHistory(item);
 
-  const url = releaseInfo.downloadUrl || releaseInfo.apkUrl || releaseInfo.exeUrl;
-  if (url) {
-    const a = document.createElement('a');
-    a.href = url;
-    a.target = '_blank';
-    a.setAttribute('download', '');
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  // Trigger secure stream download (No GitHub URL exposed!)
+  if (token) {
+    window.location.href = `${BACKEND}/api/downloads/secure/${token}`;
+  } else {
+    const fallbackUrl = releaseInfo.downloadUrl || releaseInfo.apkUrl || releaseInfo.exeUrl;
+    if (fallbackUrl) {
+      const a = document.createElement('a');
+      a.href = fallbackUrl;
+      a.target = '_blank';
+      a.setAttribute('download', '');
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
   }
 
   return item;

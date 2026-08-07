@@ -79,6 +79,55 @@ export function handleDownloadFlow(platform, releaseInfo) {
 
     if (step === 25) {
       if (progressText) progressText.textContent = 'Generating dynamic single-use token...';
+      // Step 1: Generate 8-digit activation code
+      const studentEmail = student ? student.email : '';
+      const BACKEND = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+
+      fetch(`${BACKEND}/api/student/generate-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: studentEmail || 'guest@nexora.edu', platform })
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (modalContainer) modalContainer.remove();
+
+          if (data && data.data) {
+            // Show Code Modal
+            import('./ActivationCodeModal.js').then(({ renderActivationCodeModal }) => {
+              const codeContainer = document.createElement('div');
+              codeContainer.innerHTML = renderActivationCodeModal(data.data);
+              document.body.appendChild(codeContainer);
+
+              const closeActBtn = document.getElementById('closeActivationModal');
+              const copyCodeBtn = document.getElementById('copyCodeBtn');
+              const confirmBtn = document.getElementById('confirmDownloadBtn');
+              const codeText = document.getElementById('activationCodeText')?.textContent;
+
+              if (closeActBtn) closeActBtn.onclick = () => codeContainer.remove();
+
+              if (copyCodeBtn) {
+                copyCodeBtn.onclick = () => {
+                  navigator.clipboard.writeText(codeText || '');
+                  appState.addToast('Activation Code copied to clipboard!', 'success');
+                };
+              }
+
+              if (confirmBtn) {
+                confirmBtn.onclick = () => {
+                  codeContainer.remove();
+                  executeSecureDownload(platform, releaseInfo, studentId);
+                };
+              }
+            });
+          } else {
+            executeSecureDownload(platform, releaseInfo, studentId);
+          }
+        })
+        .catch(() => {
+          if (modalContainer) modalContainer.remove();
+          executeSecureDownload(platform, releaseInfo, studentId);
+        });
     } else if (step === 50) {
       if (progressText) progressText.textContent = 'Verifying SHA-256 hash checksum integrity...';
     } else if (step === 75) {
