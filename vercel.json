@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "public": true,
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/src/(.*)", "destination": "/src/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

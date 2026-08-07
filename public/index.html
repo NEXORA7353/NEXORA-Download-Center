@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NEXORA Download Center — Official Software Releases</title>
+  <meta name="description" content="Official distribution center for NEXORA Student and Desktop Software. Secure downloads, release notes, and setup guides.">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  
+  <script>
+    // Universal path helper for multi-domain deployment (Vercel, Netlify, Standalone, Subpath)
+    (function() {
+      const isSubpath = window.location.pathname.startsWith('/download-center');
+      const base = isSubpath ? '/download-center' : '';
+      
+      const link1 = document.createElement('link');
+      link1.rel = 'stylesheet';
+      link1.href = base + '/src/styles/main.css';
+      document.head.appendChild(link1);
+
+      const link2 = document.createElement('link');
+      link2.rel = 'stylesheet';
+      link2.href = base + '/src/styles/components.css';
+      document.head.appendChild(link2);
+
+      const manifest = document.createElement('link');
+      manifest.rel = 'manifest';
+      manifest.href = base + '/manifest.json';
+      document.head.appendChild(manifest);
+
+      window.__NEXORA_BASE_PATH__ = base;
+    })();
+  </script>
+  
+  <meta name="theme-color" content="#0a0b0e">
+</head>
+<body>
+  <div id="root"></div>
+
+  <script>
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = (window.__NEXORA_BASE_PATH__ || '') + '/src/app.js';
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
